@@ -59,10 +59,12 @@ public class KittenClient extends Thread {
 						display = false;
 						break;
 					case "/sendFile":
+						// this.consoleOut.print("Receive");
 						this.receiveFile(input);
 						display = false;
 						break;
 					case "/fileData":
+						// this.consoleOut.print("Receive data");
 						this.receiveFileData(input);
 						display = false;
 						break;
@@ -89,7 +91,6 @@ public class KittenClient extends Thread {
 						quit = true; break;
 					case "/sendFile":
 						this.sendFileCommand = input; break;
-						//this.sendFile(input); break;
 				}
 			}
 		}
@@ -97,15 +98,17 @@ public class KittenClient extends Thread {
 
 	private void sendFile(String input) {
 		String[] cmd = input.split(" ");
+		String data;
 		byte[] buffer = new byte[8];
 		if(cmd.length >= 3) {
 			try {
 				FileInputStream fis = new FileInputStream(cmd[2]);
+				Base64.Encoder encoder = Base64.getEncoder();
 				if(cmd.length >= 3) {
 					while(fis.read(buffer)!=-1) {
-						// fileData user data
-						this.networkOut.println("/fileData "+cmd[1]+" "+cmd[2]+" "+new String(buffer));
-
+						data = new String(encoder.encode(buffer));
+						this.networkOut.println("/fileData "+cmd[1]+" "+cmd[2]+" "+data);
+						buffer = new byte[8];
 					}
 				}
 			} catch (Exception e) {
@@ -116,10 +119,11 @@ public class KittenClient extends Thread {
 	private void receiveFile(String input) {
 		String[] cmd = input.split(" ");
 		// empty dest file
-		boolean append = false;
+		boolean noAppend = false;
 		if(cmd.length >= 3) {
 			try {
-				FileOutputStream fos = new FileOutputStream(cmd[2],append);
+				this.consoleOut.println("["+cmd[1]+" is sending "+cmd[2]+"]");
+				FileOutputStream fos = new FileOutputStream(cmd[2],noAppend);
 				fos.close();
 			} catch (Exception e) {
 			   e.printStackTrace();
@@ -129,11 +133,13 @@ public class KittenClient extends Thread {
 
 	private void receiveFileData(String input) {
 		String[] cmd = input.split(" ");
+
 		boolean append = true;
 		if(cmd.length >= 4) {
 			try {
 				FileOutputStream fos = new FileOutputStream(cmd[2],append);
-				String data = String.join(" ", Arrays.copyOfRange(cmd, 3, cmd.length));
+				Base64.Decoder decoder = Base64.getDecoder();
+				String data = new String(decoder.decode(String.join(" ", Arrays.copyOfRange(cmd, 3, cmd.length))));
 				fos.write(data.getBytes());
 				fos.close();
 			} catch (Exception e) {

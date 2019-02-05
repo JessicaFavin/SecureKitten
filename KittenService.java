@@ -161,12 +161,12 @@ public class KittenService extends Thread {
 	}
 
 	private void listCommands() {
-		this.userOutput.println("/? — display help\n"
-		+"/help — display help\n"
-		+"/quit — disconnect. \n"
-		+"/list — list users. \n"
-		+"/sendMsg <username> <message> — send msg to username.\n"
-		+"/sendFile <username> <filename> — send file to username.");
+		this.userOutput.println(" /? — display help\n"
+		+" /help — display help\n"
+		+" /quit — disconnect. \n"
+		+" /list — list users. \n"
+		+" /sendMsg <username> <message> — send msg to username.\n"
+		+" /sendFile <username> <filename> — send file to username.");
 		// +"> ");
 	}
 
@@ -227,7 +227,7 @@ public class KittenService extends Thread {
 			int id = loggedUsers.indexOf(cmd[1]);
 			if(id>-1){
 				this.userOutput.println("/sendFileAck");
-				// outputs.get(id).flush();
+				outputs.get(id).println(input);
 			} else {
 				this.info("No "+cmd[1]+" user logged.");
 			}
